@@ -1,2 +1,2 @@
 # MyML
-This is a repository of the packages that I use for building models
+This is a repository of the packages that I use for building Machine Learning models
