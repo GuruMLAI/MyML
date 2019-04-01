@@ -6,6 +6,9 @@ import numpy as np
 import pandas as pd
 from itertools import combinations
 
+from sklearn.linear_model import LogisticRegression, LinearRegression
+from sklearn.ensemble import RandomForestClassifier,GradientBoostingClassifier,RandomForestRegressor,GradientBoostingRegressor
+
 class DataLoader:
     '''
     This can be used for loading the data.
@@ -62,5 +65,13 @@ class InteractionDefiner:
             data[f_name] = data[f_list].prod(axis=1)
 
         return data
+
+
+class FeatureSelection:
+
+    def __init__(self,model=LogisticRegression,mertic='auc',sparsify=True):
+        self.model = model
+        self.metric = mertic
+        self.sparsify = sparsify
 
 
