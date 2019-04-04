@@ -75,15 +75,17 @@ class FeatureSelection:
         self.metric = mertic
         self.sparsify = sparsify
 
-    def find(self, data, features, label, min_threshold=None,):
-        if self.sparsify:
-            data = data.to_sparse(fill_value=0)
+    def first_criteria(self, data, features, label, min_threshold=None):
 
-        X = data[features]
-        y = data[label]
-
-        min_threshold_featres = []
         if min_threshold is not None:
+            if self.sparsify:
+                data = data.to_sparse(fill_value=0)
+
+            X = data[features]
+            y = data[label]
+
+            min_threshold_featres = []
+
             print('Applying the minimum threshold criteria...')
             for i in features:
                 th_model = self.model
@@ -91,6 +93,19 @@ class FeatureSelection:
                 var_metric = roc_auc_score(y,th_model.predict_proba(X[i]))
                 if var_metric > min_threshold:
                     min_threshold_featres.append(i)
+        else:
+            min_threshold_featres = features
+
+        return min_threshold_featres
+
+
+    def select_features(self, data, features, label, min_threshold=None):
+
+        feature_subset = self.first_criteria(data, features, label, min_threshold)
+
+
+
+
 
 
 
