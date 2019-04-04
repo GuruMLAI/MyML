@@ -8,6 +8,7 @@ from itertools import combinations
 
 from sklearn.linear_model import LogisticRegression, LinearRegression
 from sklearn.ensemble import RandomForestClassifier,GradientBoostingClassifier,RandomForestRegressor,GradientBoostingRegressor
+from sklearn.metrics import auc, roc_auc_score, accuracy_score
 
 class DataLoader:
     '''
@@ -69,9 +70,30 @@ class InteractionDefiner:
 
 class FeatureSelection:
 
-    def __init__(self,model=LogisticRegression,mertic='auc',sparsify=True):
+    def __init__(self,model=LogisticRegression, mertic='auc', sparsify=True):
         self.model = model
         self.metric = mertic
         self.sparsify = sparsify
+
+    def find(self, data, features, label, min_threshold=None,):
+        if self.sparsify:
+            data = data.to_sparse(fill_value=0)
+
+        X = data[features]
+        y = data[label]
+
+        min_threshold_featres = []
+        if min_threshold is not None:
+            print('Applying the minimum threshold criteria...')
+            for i in features:
+                th_model = self.model
+                th_model.fit(X[i],y)
+                var_metric = roc_auc_score(y,th_model.predict_proba(X[i]))
+                if var_metric > min_threshold:
+                    min_threshold_featres.append(i)
+
+
+
+
 
 
