@@ -34,6 +34,30 @@ class DataLoader:
         return pd.read_csv(self.train_data), pd.read_csv(self.test_data)
 
 
+class Encoder:
+    def __init__(self,features):
+        self.features = features
+
+    def find_values(self, train_data):
+        feature_values = {}
+        for i in self.features:
+            feature_values.update({i:list(train_data[i].unique())})
+        self.feature_values = feature_values
+
+        print(self.feature_values)
+
+    def encode(self, data):
+        for key, value in self.feature_values.items():
+            for i in np.arange(1,len(value)):
+                var_name = str(key)+'_'+str(value[i])
+                data[var_name] = data[key].apply(lambda x: 1 if x == value[i] else 0)
+            data.drop(key, axis=1, inplace=True)
+
+        return data
+
+
+
+
 class InteractionDefiner:
     '''
     This class defines the Interactions in the dataset between a defined set of input variables.
