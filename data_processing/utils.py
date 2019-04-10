@@ -10,6 +10,7 @@ def metric_calc(model, X, y, metric='auc'):
 
     return _metric
 
+
 def cross_validation_score(model, data, features, label, metric='auc', fold=5):
 
     kf = KFold(n_splits=fold, shuffle=True)

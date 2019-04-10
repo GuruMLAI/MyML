@@ -81,22 +81,28 @@ class FeatureSelection:
             if self.sparsify:
                 data = data.to_sparse(fill_value=0)
 
-            X = data[features]
-            y = data[label]
-
             min_threshold_featres = []
 
             print('Applying the minimum threshold criteria...')
             for i in features:
-                th_model = self.model
-                th_model.fit(X[i],y)
-                var_metric = roc_auc_score(y,th_model.predict_proba(X[i]))
+
+                X = np.array(data[i]).reshape(-1,1)
+                y = np.array(data[label])
+
+                th_model = self.model()
+
+                th_model.fit(X,y)
+
+                var_metric = roc_auc_score(y,th_model.predict_proba(X)[:, 1])
                 if var_metric > min_threshold:
+                    print('The {} for {} is {}'.format(self.metric, i, var_metric))
                     min_threshold_featres.append(i)
+                else:
+                    print('The {} for {} is {} which is less than the threshold. Variable will be dropped'.format(self.metric, i, var_metric))
         else:
             min_threshold_featres = features
 
-        return min_threshold_featres
+        return data.loc[:,min_threshold_featres]
 
 
     def select_features(self, data, features, label, min_threshold=None):

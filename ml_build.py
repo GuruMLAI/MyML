@@ -1,4 +1,7 @@
-from data_processing.preprocessing import DataLoader, InteractionDefiner
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
+from data_processing.preprocessing import DataLoader, InteractionDefiner, FeatureSelection
 
 from data_processing.utils import cross_validation_score
 from sklearn.linear_model import LogisticRegression
@@ -6,12 +9,15 @@ from sklearn.linear_model import LogisticRegression
 # Load the data
 dl = DataLoader()
 train, test = dl.load()
-#print(train)
-
-model, metric = cross_validation_score(LogisticRegression, train,['Pclass','SibSp','Parch'],'Survived', 'auc', 3 )
 
 # Interaction Definer
-#Id = InteractionDefiner(['Pclass','SibSp','Parch','Survived'],[2,3])
-#print(Id.calculate(train))
+Id = InteractionDefiner(['Pclass','SibSp','Parch'],[2,3])
+train, test = Id.calculate(train), Id.calculate(test)
 
+# Feature Selection
+fs = FeatureSelection()
 
+features = list(train.columns)
+features = [col for col in features if col not in ['Survived','Sex','Embarked']]
+min_th_feat = fs.first_criteria(train,features,'Survived', 0.6)
+print(min_th_feat)
