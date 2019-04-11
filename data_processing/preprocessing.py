@@ -20,11 +20,14 @@ class DataLoader:
     The load method does the loading of the data into train and test datasets.
     '''
 
-    def __init__(self, train='train.csv', test='test.csv'):
+    def __init__(self,loc = 'User_Defined', train='train.csv', test='test.csv'):
 
-        print('Please select the directory that has the data.')
-        Tk().withdraw()
-        self.data_path = askdirectory()
+        if loc == 'User_Defined':
+            print('Please select the directory that has the data.')
+            Tk().withdraw()
+            self.data_path = askdirectory()
+        else:
+            self.data_path = loc
 
         self.train_data = os.path.join(self.data_path, train)
         self.test_data = os.path.join(self.data_path, test)
@@ -44,7 +47,8 @@ class Encoder:
             feature_values.update({i:list(train_data[i].unique())})
         self.feature_values = feature_values
 
-        print(self.feature_values)
+        print('Unique values of the encoded variables are :\n {}'.format(self.feature_values))
+        print('Dummy variables will be created using all but the first value in the list\n')
 
     def encode(self, data):
         for key, value in self.feature_values.items():
@@ -78,9 +82,6 @@ class InteractionDefiner:
             for x in combinations(np.arange(len(self.features)),i):
                 self.iterator.append(x)
 
-        print(self.iterator)
-
-
     def calculate(self, data):
 
         for i in self.iterator:
@@ -107,11 +108,11 @@ class FeatureSelection:
 
             min_threshold_featres = []
 
-            print('Applying the minimum threshold criteria...')
+            print('Applying the minimum threshold criteria...\n')
             for i in features:
 
                 X = np.array(data[i]).reshape(-1,1)
-                y = np.array(data[label])
+                y = np.array(data[label]).reshape(-1,)
 
                 th_model = self.model()
 
@@ -119,12 +120,13 @@ class FeatureSelection:
 
                 var_metric = roc_auc_score(y,th_model.predict_proba(X)[:, 1])
                 if var_metric > min_threshold:
-                    print('The {} for {} is {}'.format(self.metric, i, var_metric))
                     min_threshold_featres.append(i)
-                else:
-                    print('The {} for {} is {} which is less than the threshold. Variable will be dropped'.format(self.metric, i, var_metric))
+
         else:
             min_threshold_featres = features
+
+        print('The following {} variables passed the minimum criteria.'.format(len(min_threshold_featres)))
+        print('{}'.format(min_threshold_featres))
 
         return data.loc[:,min_threshold_featres]
 
