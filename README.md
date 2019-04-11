@@ -6,10 +6,10 @@ This is a repository of the packages that I use for building Machine Learning mo
  Data Load,
  Interaction Define,
  Cross-validation,
- Variable Encoder
+ Variable Encoder,
+ Feature Selection
  
  **Currently Under Development**
- Feature Selection,
  Missing value Treatment,
  Data Explorer
  
