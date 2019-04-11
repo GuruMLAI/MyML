@@ -80,10 +80,11 @@ class InteractionDefiner:
      can be defined in types as a list
     '''
 
-    def __init__(self, features, types):
+    def __init__(self, features, types, cat_var):
 
         self.features = features
         self.types = types
+        self.cat_var = cat_var
 
         self.iterator = []
         for i in self.types:
@@ -96,7 +97,12 @@ class InteractionDefiner:
 
             f_list = [self.features[k] for k in list(i)]
             f_name = '_'.join(f_list)
-            data[f_name] = data[f_list].prod(axis=1)
+            create = 1
+            for j in self.cat_var:
+                if f_name.count(j) > 1:
+                    create = 0
+            if create == 1:
+                data[f_name] = data[f_list].prod(axis=1)
 
         return data
 
@@ -123,8 +129,8 @@ class FeatureSelection:
             if cv_score > min_threshold:
                 min_threshold_featres.append(i)
 
-        print('The following {} variables passed the minimum criteria.\n'.format(len(min_threshold_featres)))
-        print('{}'.format(min_threshold_featres))
+        print('The following {} variables passed the minimum criteria.'.format(len(min_threshold_featres)))
+        print('{}\n'.format(min_threshold_featres))
 
         return min_threshold_featres
 
@@ -139,22 +145,29 @@ class FeatureSelection:
         else:
             feature_subset = features
 
-
-        feature_comb = []
-        for i in np.arange(1,len(feature_subset)+1):
-            for x in combinations(np.arange(len(feature_subset)),i):
-                feature_comb.append(x)
-
         final_metric = 0
-        final_features = []
+        break_val = 0
+        rem_features = feature_subset
+        sel_features = []
 
         print('Starting feature selection')
-        for i in feature_comb:
-            f_list = [feature_subset[k] for k in list(i)]
-            cv_score = cross_validation_score(self.model, data, f_list, label, self.metric, fold=5)
-            if cv_score > final_metric:
-                final_metric = cv_score
-                final_features = f_list
-                print('Updating the feature list to {} with {} of {}'.format(f_list, self.metric, final_metric))
 
-        return final_features
+        while break_val == 0 and len(rem_features) > 0:
+
+            loop_variable = ''
+
+            for i in rem_features:
+
+                cv_score = cross_validation_score(self.model, data, sel_features + [i], label, self.metric, fold=5)
+                if cv_score > final_metric:
+                    final_metric = cv_score
+                    loop_variable = i
+
+            if loop_variable == '':
+                break_val = 1
+            else:
+                sel_features = sel_features + [loop_variable]
+                rem_features.remove(loop_variable)
+                print('Updating the feature list to {} with {} of {}'.format(sel_features, self.metric, final_metric))
+
+        return sel_features
