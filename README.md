@@ -1,6 +1,7 @@
 # MyML
-This is a repository of the packages that I use for building Machine Learning models
- It is still under development and is being built using the classic Titanic Data set as a model.
+This is a repository of the packages that I use for building Machine Learning models.
+
+It is still under development and is being built using the classic Titanic Data set as a model.
  
  
  **Completed components**
@@ -10,8 +11,11 @@ This is a repository of the packages that I use for building Machine Learning mo
  Variable Encoder
  
  **Currently Under Development**
- Feature Selection
+ Feature Selection,
+ Missing value Treatment,
+ Data Explorer
  
  
  **Planned components**
- Model stacking
+ Model stacking,
+ Unsupervised modeling meta-features for Stacking
