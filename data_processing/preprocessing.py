@@ -1,4 +1,4 @@
-import os
+import os, sys
 from tkinter import Tk
 from tkinter.filedialog import askdirectory
 
@@ -13,11 +13,13 @@ from sklearn.metrics import auc, roc_auc_score, accuracy_score
 class DataLoader:
     '''
     This can be used for loading the data.
-    The user has to choose the folder where the training and the test dat aare located.
+    The user has to choose the folder where the training and the test data are located.
     Also specify the names of the files. The default file format is assumed to be csv.
 
     The __init__ method defines the data directory and the training and test files.
     The load method does the loading of the data into train and test datasets.
+
+    Alternatively, the user can also directly specify a pathusing the run_params 'Data_Location'
     '''
 
     def __init__(self,loc = 'User_Defined', train='train.csv', test='test.csv'):
@@ -26,8 +28,12 @@ class DataLoader:
             print('Please select the directory that has the data.')
             Tk().withdraw()
             self.data_path = askdirectory()
-        else:
+        elif os.path.exists(loc):
             self.data_path = loc
+        else:
+            print('The specified path does not exist. Please correct it and try again')
+            sys.exit(1)
+
 
         self.train_data = os.path.join(self.data_path, train)
         self.test_data = os.path.join(self.data_path, test)
