@@ -7,7 +7,7 @@ from data_processing.utils import cross_validation_score
 from sklearn.linear_model import LogisticRegression
 
 run_params = {
-    'Data_Location': '/Users/Guruprasad/Documents/Files/Work/Training/Kaggle/Titanic/data', #'User_Defined' if GUI is to be used to select the folder
+    'Data_Location': 'User_Defined', #'User_Defined' if GUI is to be used to select the folder
     'ID_variables': ['PassengerId'],
     'label': ['Survived'],
     'encode_variables': ['Sex','Pclass','Embarked']
@@ -36,6 +36,6 @@ train, test = Id.calculate(train), Id.calculate(test)
 fs = FeatureSelection()
 
 features = list(train.columns)
-features = [col for col in features if col not in ['Survived','Sex','Embarked']]
-min_th_feat = fs.first_criteria(train, features, run_params.get('label'), 0.6)
+base_features = [col for col in features if col not in run_params.get('ID_variables')+run_params.get('label')]
+min_th_feat = fs.select_features(train, base_features, run_params.get('label'), 0.6)
 

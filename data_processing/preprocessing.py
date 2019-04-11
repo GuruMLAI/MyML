@@ -10,6 +10,8 @@ from sklearn.linear_model import LogisticRegression, LinearRegression
 from sklearn.ensemble import RandomForestClassifier,GradientBoostingClassifier,RandomForestRegressor,GradientBoostingRegressor
 from sklearn.metrics import auc, roc_auc_score, accuracy_score
 
+from data_processing.utils import cross_validation_score
+
 class DataLoader:
     '''
     This can be used for loading the data.
@@ -106,47 +108,53 @@ class FeatureSelection:
         self.metric = mertic
         self.sparsify = sparsify
 
+
     def first_criteria(self, data, features, label, min_threshold=None):
 
-        if min_threshold is not None:
-            if self.sparsify:
-                data = data.to_sparse(fill_value=0)
+        if self.sparsify:
+            data = data.to_sparse(fill_value=0)
 
-            min_threshold_featres = []
+        min_threshold_featres = []
 
-            print('Applying the minimum threshold criteria...\n')
-            for i in features:
+        print('Applying the minimum threshold criteria...\n')
+        for i in features:
+            cv_score = cross_validation_score(self.model, data, [i], label, self.metric)
 
-                X = np.array(data[i]).reshape(-1,1)
-                y = np.array(data[label]).reshape(-1,)
+            if cv_score > min_threshold:
+                min_threshold_featres.append(i)
 
-                th_model = self.model()
-
-                th_model.fit(X,y)
-
-                var_metric = roc_auc_score(y,th_model.predict_proba(X)[:, 1])
-                if var_metric > min_threshold:
-                    min_threshold_featres.append(i)
-
-        else:
-            min_threshold_featres = features
-
-        print('The following {} variables passed the minimum criteria.'.format(len(min_threshold_featres)))
+        print('The following {} variables passed the minimum criteria.\n'.format(len(min_threshold_featres)))
         print('{}'.format(min_threshold_featres))
 
-        return data.loc[:,min_threshold_featres]
+        return min_threshold_featres
 
 
     def select_features(self, data, features, label, min_threshold=None):
 
-        feature_subset = self.first_criteria(data, features, label, min_threshold)
+        if self.sparsify:
+            data = data.to_sparse(fill_value=0)
+
+        if min_threshold is not None:
+            feature_subset = self.first_criteria(data, features, label, min_threshold)
+        else:
+            feature_subset = features
 
 
+        feature_comb = []
+        for i in np.arange(1,len(feature_subset)+1):
+            for x in combinations(np.arange(len(feature_subset)),i):
+                feature_comb.append(x)
 
+        final_metric = 0
+        final_features = []
 
+        print('Starting feature selection')
+        for i in feature_comb:
+            f_list = [feature_subset[k] for k in list(i)]
+            cv_score = cross_validation_score(self.model, data, f_list, label, self.metric, fold=5)
+            if cv_score > final_metric:
+                final_metric = cv_score
+                final_features = f_list
+                print('Updating the feature list to {} with {} of {}'.format(f_list, self.metric, final_metric))
 
-
-
-
-
-
+        return final_features
