@@ -7,7 +7,7 @@ from data_processing.utils import cross_validation_score
 from sklearn.linear_model import LogisticRegression
 
 run_params = {
-    'Data_Location': 'User_Defined', #'User_Defined' if GUI is to be used to select the folder
+    'Data_Location': '/Users/Guruprasad/Documents/Files/Work/Training/Kaggle/Titanic/data', #'User_Defined' if GUI is to be used to select the folder
     'ID_variables': ['PassengerId'],
     'label': ['Survived'],
     'encode_variables': ['Sex','Pclass','Embarked']
