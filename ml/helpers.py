@@ -4,7 +4,7 @@ from sklearn.metrics import auc, roc_auc_score, accuracy_score
 
 from ml.utils import cross_validation_score
 
-class FeatureSelection:
+class FeatureSelector:
 
     def __init__(self,model=LogisticRegression, mertic='auc', sparsify=True):
         self.model = model

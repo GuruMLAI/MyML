@@ -2,7 +2,7 @@ import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 from data_processing.preprocessing import DataLoader, Encoder, InteractionDefiner
-from ml.helpers import FeatureSelection
+from ml.helpers import FeatureSelector
 
 run_params = {
     'Data_Location': '/Users/Guruprasad/Documents/Files/Work/Training/Kaggle/Titanic/data', #'User_Defined' if GUI is to be used to select the folder
@@ -31,7 +31,7 @@ train, test = Id.calculate(train), Id.calculate(test)
 
 
 # Feature Selection
-fs = FeatureSelection()
+fs = FeatureSelector()
 
 features = list(train.columns)
 base_features = [col for col in features if col not in run_params.get('ID_variables')+run_params.get('label')]
