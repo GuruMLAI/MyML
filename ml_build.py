@@ -35,5 +35,4 @@ fs = FeatureSelector()
 
 features = list(train.columns)
 base_features = [col for col in features if col not in run_params.get('ID_variables')+run_params.get('label')]
-final_features = fs.select_features(train, base_features, run_params.get('label'), 0.6)
-
+final_features = fs.select_features(train, base_features, run_params.get('label'), 'step-wise', 0.6)
