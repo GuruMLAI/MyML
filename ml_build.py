@@ -46,11 +46,12 @@ train, test = Id.calculate(train), Id.calculate(test)
 
 
 # Feature Selection
-fs = FeatureSelector(model=RandomForestClassifier, metric='accuracy')
+fs = FeatureSelector(model=LogisticRegression(), metric='accuracy')
 
 features = list(train.columns)
 base_features = [col for col in features if col not in run_params.get('id_variables')+run_params.get('label')]
-final_features = fs.select_features(train, base_features, run_params.get('label'), 'step-wise', 0.65)
+#final_features = fs.select_features(train, base_features, run_params.get('label'), 'step-wise', 0.65)
+final_features = fs.first_criteria(train, base_features, run_params.get('label'), 0.65)
 
 
 # Model fit

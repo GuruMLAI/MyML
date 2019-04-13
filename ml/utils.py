@@ -18,9 +18,8 @@ def cross_validation_score(model, data, features, label, metric='auc', fold=None
         X_train = np.array(data.loc[:,features]).reshape(-1, len(features))
         y_train = np.array(data.loc[:,label]).reshape(-1, )
 
-        ml = model()
-        ml.fit(X_train, y_train)
-        mean_metric = metric_calc(ml, X_train, y_train, metric)
+        model.fit(X_train, y_train)
+        mean_metric = metric_calc(model, X_train, y_train, metric)
 
     else:
 
@@ -35,10 +34,9 @@ def cross_validation_score(model, data, features, label, metric='auc', fold=None
             y_train = np.array(data.iloc[train_index][label]).reshape(-1,)
             y_test = np.array(data.iloc[test_index][label]).reshape(-1,)
 
-            ml = model()
-            ml.fit(X_train, y_train)
+            model.fit(X_train, y_train)
 
-            ml_metric = metric_calc(ml, X_test, y_test, metric)
+            ml_metric = metric_calc(model, X_test, y_test, metric)
 
             mean_metric += ml_metric/fold
 

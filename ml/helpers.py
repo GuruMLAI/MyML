@@ -6,7 +6,7 @@ from ml.utils import cross_validation_score
 
 class FeatureSelector:
 
-    def __init__(self,model=LogisticRegression, metric='auc', sparsify=True):
+    def __init__(self,model=LogisticRegression(), metric='auc', sparsify=True):
         self.model = model
         self.metric = metric
         self.sparsify = sparsify
