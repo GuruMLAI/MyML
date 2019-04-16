@@ -5,6 +5,23 @@ import matplotlib.pyplot as plt
 
 from ml.utils import cross_validation_score
 
+
+class SklearnHelper(object):
+    def __init__(self, clf, features):
+        self.clf = clf
+        self.features = features
+
+    def fit(self, x, y):
+        return self.clf.fit(x[self.features], y)
+
+    def predict(self, x):
+        return self.clf.predict(x[self.features])
+
+    def predict_proba(self, x):
+        return self.clf.predict_proba(x[self.features])
+
+
+
 class ModelStack:
 
     def __init__(self, level0_models, level1_model, level1_input_vars, metric):
@@ -16,7 +33,7 @@ class ModelStack:
 
 
 
-    def fit_pred(self, data, features, label, folds=5):
+    def fit_pred(self, data, label, folds=5):
 
         print('Starting Level 0 fit & predict method on the training data...')
         kf = KFold(n_splits=folds, random_state=25)
@@ -27,9 +44,9 @@ class ModelStack:
         self.level1_input_vars.extend(level1_new_input_vars)
 
         for i, (train_index, test_index) in enumerate(kf.split(data)):
-            x_tr = data.ix[train_index, features]
+            x_tr = data.ix[train_index, :]
             y_tr = data.ix[train_index, label]
-            x_te = data.ix[test_index, features]
+            x_te = data.ix[test_index, :]
 
             for j in trained_level0_models:
                 model0 = self.level0_models.get(j)
@@ -40,7 +57,6 @@ class ModelStack:
                 data.ix[test_index, 'level0_'+j] = model0.predict_proba(x_te)[:, 1]
 
         self.trained_level0_models = trained_level0_models
-        self.level0_input_vars = features
         self.label = label
 
         corr = data.ix[:,level1_new_input_vars].corr()
@@ -68,7 +84,7 @@ class ModelStack:
         for i in self.trained_level0_models:
             for fold, j in enumerate(self.trained_level0_models.get(i)):
                 var = i+'__'+str(fold)
-                test[var] = j.predict_proba(test[self.level0_input_vars])[:,1]
+                test[var] = j.predict_proba(test)[:,1]
 
             var_final = 'level0_'+i
             mean_vars = [x for x in list(test.columns) if x.startswith(i+'__')]

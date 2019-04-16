@@ -1,6 +1,6 @@
 from data_processing.preprocessing import DataLoader, Encoder, InteractionDefiner, Standardizer
 from ml.helpers import FeatureSelector
-from ml.stacking import ModelStack
+from ml.stacking import ModelStack, SklearnHelper
 
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, GradientBoostingClassifier
 from sklearn.linear_model import LogisticRegression
@@ -16,10 +16,7 @@ run_params = {
     'std_variables': ['Fare', 'Age'],
     'encode_variables': ['Sex','Embarked', 'Title'],
     'interactions': [2,3],
-    'level0_in_level1': ['Sex_female'],
-    'level0_models': {'rf':RandomForestClassifier(n_estimators=500),
-                 'abc':AdaBoostClassifier(n_estimators=500),
-                 'gbc':GradientBoostingClassifier(n_estimators=500)}
+    'level0_in_level1': []
 }
 
 # Load the data
@@ -54,14 +51,19 @@ fs = FeatureSelector(metric='accuracy')
 
 features = list(train.columns)
 base_features = [col for col in features if col not in run_params.get('id_variables')+run_params.get('label')]
-#final_features = fs.select_features(train, base_features, run_params.get('label'), 'step-wise', 0.65)
-final_features = fs.first_criteria(train, base_features, run_params.get('label'), 0.65)
+first_criteria_features = fs.first_criteria(train, base_features, run_params.get('label'), 0.65)
+selected_features = fs.select_features(train, base_features, run_params.get('label'), 'step-wise', 0.65)
 
 
 # Start building the model
+level0_models= {'rf': SklearnHelper(RandomForestClassifier(n_estimators=500),first_criteria_features),
+                'abc': SklearnHelper(AdaBoostClassifier(n_estimators=500),first_criteria_features),
+                'gbc': SklearnHelper(GradientBoostingClassifier(n_estimators=500),first_criteria_features),
+                'lr': SklearnHelper(LogisticRegression(),selected_features)
+                }
 
-MS = ModelStack(run_params.get('level0_models'), LogisticRegression(), run_params.get('level0_in_level1'), 'accuracy')
-MS.fit_pred(train, final_features, run_params.get('label'), 5)
+MS = ModelStack(level0_models, LogisticRegression(), run_params.get('level0_in_level1'), 'accuracy')
+MS.fit_pred(train, run_params.get('label'), 5)
 final = MS.predict(test)
 final[run_params.get('id_variables')+run_params.get('label')].to_csv(run_params.get('data_location')+'/final_pred.csv', index = False)
 
