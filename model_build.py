@@ -17,7 +17,7 @@ run_params = {
     'label': ['Survived'],
     'std_variables': ['Fare', 'Age'],
     'encode_variables': ['Sex','Embarked', 'Title'],
-    'level0_in_level1': ['Sex_female','Pclass']
+    'level0_in_level1': []
 }
 
 # Load the data
