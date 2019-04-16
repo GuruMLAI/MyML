@@ -16,7 +16,8 @@ run_params = {
     'id_variables': ['PassengerId'],
     'label': ['Survived'],
     'std_variables': ['Fare', 'Age'],
-    'encode_variables': ['Sex','Pclass','Embarked', 'Title']
+    'encode_variables': ['Sex','Embarked', 'Title'],
+    'level0_in_level1': ['Sex_female','Pclass']
 }
 
 # Load the data
@@ -25,9 +26,10 @@ train, test = dl.load()
 
 
 # Variable Standardization
-Std = Standardizer()
-Std.define(train, run_params.get('std_variables'))
-train, test = Std.calculate(train), Std.calculate(test)
+if run_params.get('std_variables') != []:
+    Std = Standardizer()
+    Std.define(train, run_params.get('std_variables'))
+    train, test = Std.calculate(train), Std.calculate(test)
 
 
 
@@ -55,12 +57,16 @@ final_features = fs.first_criteria(train, base_features, run_params.get('label')
 
 
 # Start building the model
-level0_models = {'rf':RandomForestClassifier(),
-                 'abc':AdaBoostClassifier(),
-                 'gbc':GradientBoostingClassifier()
+level0_models = {'rf':RandomForestClassifier(n_estimators=500),
+                 'abc':AdaBoostClassifier(n_estimators=500),
+                 'gbc':GradientBoostingClassifier(n_estimators=500)
 }
 
-MS = ModelStack(level0_models,LogisticRegression())
+MS = ModelStack(level0_models, LogisticRegression(), run_params.get('level0_in_level1'), 'accuracy')
 
-MS.fit0_pred(train, final_features, run_params.get('label'), 5)
+MS.fit_pred(train, final_features, run_params.get('label'), 5)
+
+final = MS.predict(test)
+
+final[run_params.get('id_variables')+run_params.get('label')].to_csv(run_params.get('data_location')+'/final_pred.csv', index = False)
 
