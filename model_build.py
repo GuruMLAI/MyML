@@ -5,8 +5,6 @@ from ml.stacking import ModelStack
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, GradientBoostingClassifier
 from sklearn.linear_model import LogisticRegression
 
-
-
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -36,7 +34,6 @@ if run_params.get('std_variables') != []:
     train, test = Std.calculate(train), Std.calculate(test)
 
 
-
 # Dummy Variable Encoder
 if run_params.get('encode_variables') != []:
     ec = Encoder(run_params.get('encode_variables'))
@@ -64,10 +61,7 @@ final_features = fs.first_criteria(train, base_features, run_params.get('label')
 # Start building the model
 
 MS = ModelStack(run_params.get('level0_models'), LogisticRegression(), run_params.get('level0_in_level1'), 'accuracy')
-
 MS.fit_pred(train, final_features, run_params.get('label'), 5)
-
 final = MS.predict(test)
-
 final[run_params.get('id_variables')+run_params.get('label')].to_csv(run_params.get('data_location')+'/final_pred.csv', index = False)
 
