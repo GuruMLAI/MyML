@@ -17,6 +17,7 @@ run_params = {
     'label': ['Survived'],
     'std_variables': ['Fare', 'Age'],
     'encode_variables': ['Sex','Embarked', 'Title'],
+    'interactions': [2,3],
     'level0_in_level1': []
 }
 
@@ -42,9 +43,10 @@ if run_params.get('encode_variables') != []:
 
 
 # Interaction Definer
-interaction_variables = [col for col in train.columns if col not in run_params.get('id_variables')+run_params.get('label')]
-Id = InteractionDefiner(interaction_variables, [2,3], run_params.get('encode_variables'))
-train, test = Id.calculate(train), Id.calculate(test)
+if run_params.get('interactions') != []:
+    interaction_variables = [col for col in train.columns if col not in run_params.get('id_variables')+run_params.get('label')]
+    Id = InteractionDefiner(interaction_variables, run_params.get('interactions'), run_params.get('encode_variables'))
+    train, test = Id.calculate(train), Id.calculate(test)
 
 
 # Feature Selection
