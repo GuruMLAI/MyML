@@ -53,7 +53,7 @@ class ModelStack:
         print('Starting to train the level 2 model...')
 
         model1 = self.level1_model
-
+        print('The variables used to train the level1 model are \n{}'.format(self.level1_input_vars))
         model1.fit(data[self.level1_input_vars], data[label])
         cv_score = cross_validation_score(model1, data, self.level1_input_vars, label, self.metric)
 

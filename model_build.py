@@ -18,7 +18,10 @@ run_params = {
     'std_variables': ['Fare', 'Age'],
     'encode_variables': ['Sex','Embarked', 'Title'],
     'interactions': [2,3],
-    'level0_in_level1': []
+    'level0_in_level1': ['Sex_female'],
+    'level0_models': {'rf':RandomForestClassifier(n_estimators=500),
+                 'abc':AdaBoostClassifier(n_estimators=500),
+                 'gbc':GradientBoostingClassifier(n_estimators=500)}
 }
 
 # Load the data
@@ -59,12 +62,8 @@ final_features = fs.first_criteria(train, base_features, run_params.get('label')
 
 
 # Start building the model
-level0_models = {'rf':RandomForestClassifier(n_estimators=500),
-                 'abc':AdaBoostClassifier(n_estimators=500),
-                 'gbc':GradientBoostingClassifier(n_estimators=500)
-}
 
-MS = ModelStack(level0_models, LogisticRegression(), run_params.get('level0_in_level1'), 'accuracy')
+MS = ModelStack(run_params.get('level0_models'), LogisticRegression(), run_params.get('level0_in_level1'), 'accuracy')
 
 MS.fit_pred(train, final_features, run_params.get('label'), 5)
 
