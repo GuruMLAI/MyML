@@ -13,6 +13,7 @@ run_params = {
     'data_location': '/Users/Guruprasad/Documents/Files/Work/Training/Kaggle/Titanic/data', #'User_Defined' if GUI is to be used to select the folder
     'id_variables': ['PassengerId'],
     'label': ['Survived'],
+    'metric': 'accuracy',
     'std_variables': ['Fare', 'Age'],
     'encode_variables': ['Sex','Embarked', 'Title'],
     'interactions': [2,3],
@@ -47,12 +48,12 @@ if run_params.get('interactions') != []:
 
 
 # Feature Selection
-fs = FeatureSelector(metric='accuracy')
+fs = FeatureSelector(metric=run_params.get('metric'))
 
 features = list(train.columns)
 base_features = [col for col in features if col not in run_params.get('id_variables')+run_params.get('label')]
 first_criteria_features = fs.first_criteria(train, base_features, run_params.get('label'), 0.65)
-selected_features = fs.select_features(train, base_features, run_params.get('label'), 'step-wise', 0.65)
+selected_features = fs.select_features(train, first_criteria_features, run_params.get('label'), 'step-wise', 0.65)
 
 
 # Start building the model
@@ -62,7 +63,7 @@ level0_models= {'rf': SklearnHelper(RandomForestClassifier(n_estimators=500),fir
                 'lr': SklearnHelper(LogisticRegression(),selected_features)
                 }
 
-MS = ModelStack(level0_models, LogisticRegression(), run_params.get('level0_in_level1'), 'accuracy')
+MS = ModelStack(level0_models, LogisticRegression(), run_params.get('level0_in_level1'), run_params.get('metric'))
 MS.fit_pred(train, run_params.get('label'), 5)
 final = MS.predict(test)
 final[run_params.get('id_variables')+run_params.get('label')].to_csv(run_params.get('data_location')+'/final_pred.csv', index = False)
